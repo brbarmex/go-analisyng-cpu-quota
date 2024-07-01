@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: brbarmex-app
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"     
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: brbarmex-app
+  template:
+    metadata: 
+      labels:
+        app: brbarmex-app
+    spec:
+      containers:
+      - name: brbarmex-app
+        image: brbarmex/go-analisyng:1.0.2
+        ports:
+        - name: web
+          containerPort: 8080
+        resources:
+          limits:
+            cpu: "250m"   # Limite de CPU de 250 milicores (0.25 cores)
+            #memory: "256Mi"  # Limite de memória de 256 MiB
+          requests:
+            cpu: "100m"   # Requisição de CPU de 100 milicores (0.1 cores)
+            #memory: "128Mi"  # Requisição de memória de 128 MiB          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: brbarmex-svc
+  labels:
+    app: brbarmex-svc
+spec:
+  selector:
+    app: brbarmex-app
+  ports:
+  - name: "metrics"
+    port: 8080
